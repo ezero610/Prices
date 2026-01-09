@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>報價計算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .korean-bg {
+            background-color: #f8f7f4; 
+        }
+        .korean-card {
+            background-color: #ffffff;
+            border: 1px solid #eeebe5;
+        }
+        .korean-primary {
+            background-color: #8e857d; 
+        }
+        .korean-secondary {
+            background-color: #f2efeb; 
+            color: #8e857d;
+        }
+    </style>
+</head>
+<body class="korean-bg min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full korean-card rounded-[30px] shadow-xl overflow-hidden">
+        <!-- 頂部標題 -->
+        <div class="korean-primary p-6 text-white text-center">
+            <h1 class="text-lg font-bold tracking-widest">費用報價系統</h1>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <!-- 輸入區域 -->
+            <div class="space-y-6">
+                <!-- 包裹費用列 -->
+                <div class="bg-[#fcfcfb] p-5 rounded-2xl border border-[#eeebe5]">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-sm font-bold text-[#8e857d]">包裹費用</label>
+                        <div class="flex items-center text-xs bg-white px-3 py-1 rounded-full border border-[#eeebe5]">
+                            <span>倍率:</span>
+                            <input type="number" id="pRate" value="4.6" step="0.1" inputmode="decimal" class="w-10 text-center font-bold text-[#8e857d] outline-none">
+                        </div>
+                    </div>
+                    <input type="number" id="pInput" placeholder="請輸入原價" inputmode="decimal" class="w-full bg-white border border-[#eeebe5] rounded-xl p-4 text-xl font-medium text-[#5c554e] outline-none focus:border-[#d1ccc0] mb-3">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="text-xs text-[#b7b0a3]">小計</span>
+                        <span class="text-[#8e857d] font-bold text-2xl" id="pRes">0</span>
+                    </div>
+                </div>
+
+                <!-- 代收費用列 -->
+                <div class="bg-[#fcfcfb] p-5 rounded-2xl border border-[#eeebe5]">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-sm font-bold text-[#8e857d]">代收費用</label>
+                        <div class="flex items-center text-xs bg-white px-3 py-1 rounded-full border border-[#eeebe5]">
+                            <span>倍率:</span>
+                            <input type="number" id="cRate" value="5" step="0.1" inputmode="decimal" class="w-10 text-center font-bold text-[#8e857d] outline-none">
+                        </div>
+                    </div>
+                    <input type="number" id="cInput" placeholder="請輸入原價" inputmode="decimal" class="w-full bg-white border border-[#eeebe5] rounded-xl p-4 text-xl font-medium text-[#5c554e] outline-none focus:border-[#d1ccc0] mb-3">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="text-xs text-[#b7b0a3]">小計</span>
+                        <span class="text-[#8e857d] font-bold text-2xl" id="cRes">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 總計區域 -->
+            <div class="bg-[#5c554e] rounded-2xl p-6 text-white flex justify-between items-center shadow-md">
+                <span class="text-lg font-medium">總共：💰</span>
+                <span class="text-4xl font-bold text-[#f2efeb]" id="gTotal">0</span>
+            </div>
+
+            <!-- 按鈕組 -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="clearAll()" class="korean-secondary py-4 rounded-2xl font-bold transition-all active:scale-95">
+                    清空
+                </button>
+                <button onclick="copyDetails()" class="korean-primary py-4 text-white rounded-2xl font-bold shadow-lg transition-all active:scale-95">
+                    複製報價明細
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#5c554e] text-white px-8 py-3 rounded-full text-xs opacity-0 transition-opacity pointer-events-none">
+        報價明細已複製
+    </div>
+
+    <script>
+        const el = (id) => document.getElementById(id);
+        const inputs = ['pInput', 'pRate', 'cInput', 'cRate'];
+
+        function calculate() {
+            const pBase = parseFloat(el('pInput').value) || 0;
+            const pRate = parseFloat(el('pRate').value) || 0;
+            const cBase = parseFloat(el('cInput').value) || 0;
+            const cRate = parseFloat(el('cRate').value) || 0;
+
+            const pTotal = Math.round(pBase * pRate);
+            const cTotal = Math.round(cBase * cRate);
+            const grandTotal = pTotal + cTotal;
+
+            el('pRes').innerText = pTotal.toLocaleString();
+            el('cRes').innerText = cTotal.toLocaleString();
+            el('gTotal').innerText = grandTotal.toLocaleString();
+        }
+
+        function clearAll() {
+            el('pInput').value = '';
+            el('cInput').value = '';
+            calculate();
+        }
+
+        function copyDetails() {
+            const pBase = el('pInput').value || 0;
+            const pRate = parseFloat(el('pRate').value);
+            const pTotal = el('pRes').innerText.replace(/,/g, '');
+            
+            const cBase = el('cInput').value || 0;
+            const cRate = parseFloat(el('cRate').value);
+            const cTotal = el('cRes').innerText.replace(/,/g, '');
+            
+            const grandTotal = el('gTotal').innerText.replace(/,/g, '');
+
+            // 更新後的複製格式：
+            // 包裹費用：$原價*倍率=小計
+            // 代收費用：$原價*倍率=小計
+            // 總共：💰總額
+            const text = `包裹費用：$${pBase}*${pRate}=$${pTotal}\n代收費用：$${cBase}*${cRate}=$${cTotal}\n總共：💰${grandTotal}`;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            showToast();
+        }
+
+        function showToast() {
+            const toast = el('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        inputs.forEach(id => el(id).addEventListener('input', calculate));
+    </script>
+</body>
+</html>
